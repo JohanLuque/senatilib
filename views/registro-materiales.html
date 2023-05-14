@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de materiales</title>
+  <!-- Bs 5.0 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+  
+
+  <div class="container">
+    <div class="mt-3 text-center">
+      <h1>Registro de materiales</h1>
+      <hr>  
+    </div>
+    
+    <nav class="nav justify-content-center  mt-3">
+      <a class="btn btn-primary" href="../index.html" aria-current="page">Inicio</a>
+    </nav>
+    
+   <form action="" id="form-registro" autocomplete="off">
+    <div class="card mt-3">
+      <div class="card-header bg-primary text-light">
+        Registros
+      </div>
+      <div class="card-body">
+        <div class="input-group mb-3 mt-3 input-group-lg">
+          <span class="input-group-text">Título</span>
+          <input type="text" id ="titulo"class="form-control">
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text">Sinopsis</span>
+          <textarea   id="sinopsis" cols="10" rows="5" class="form-control" maxlength="300"></textarea>
+        </div>
+
+        <!-- para que salga el contador de caracteres del text area -->
+        <div class="row text-muted">
+                  <p class="d-flex justify-content-end">
+                    <span id="contador">0</span><span >/300</span>
+                  </p>
+        </div>
+
+        <div class="input-group mb-3 input-group-sm">
+          <span class="input-group-text">Categoria</span>
+          <select class="form-select" id="categoria">
+            <option value="">Seleccione</option>
+          </select>
+          <span class="input-group-text">Subcategoria</span>
+          <select class="form-select" id="subcategoria">
+            <option value="">Seleccione</option>
+          </select>
+        </div>
+
+        <div class="input-group mb-3 input-group-sm">
+          <span class="input-group-text">Editoriales</span>
+          <select class="form-select" id="editoriales">
+            <option value="">Seleccione</option>
+          </select>
+          <button id="registrar" class="btn btn-primary">Nueva editorial</button>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text">version</span>
+          <input type="number" id="versionmat" class="form-control">
+          <span class="input-group-text">cantidad de páginas</span>
+          <input type="number"  id="cantpaginas" class="form-control">
+          <span class="input-group-text">Año de publicación</span>
+          <input type="number"  id="apublicacion"class="form-control">
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text">Autor</span>
+          <input type="text" id ="autor"class="form-control">
+        </div>
+
+        <div class=" mb-3  row g-2">
+          <div class="col-md">
+            <label >PDF</label>
+            <input type="file" id="materialpdf" accept =".pdf" class="form-control">
+          </div>
+          <div class="col-md">
+            <label >Caratula</label>
+            <input type="file" id="caratula" accept =".jpg" class="form-control">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <!-- Visor de portadas temporales -->
+          <img src="" alt="" id="preview" class="visor">
+        </div>
+
+      </div> <!-- fin card cuerpo -->
+      <div class="d-grid gap-2">
+        <button  id="guardar" type="button" class="btn btn-lg btn-outline-success">Guardar</button>
+        <button  id="canclar" type="reset" class="btn btn-lg btn-outline-danger">Cancelar</button>
+      </div>
+    </div> <!-- fin card -->
+   </form> <!-- fin formulario -->
+  </div><!-- fin container -->
+
+  <script>
+    document.addEventListener("DOMContentLoaded",() => {
+      const inputfile = document.querySelector("#caratula");
+      const visor = document.querySelector("#preview");
+      
+      const selCategoria = document.querySelector("#categoria");
+      const selSubcategoria = document.querySelector("#subcategoria");
+      const selEditorial = document.querySelector("#editoriales");
+      
+      const titulo = document.querySelector("#titulo");
+      const sinopsis = document.querySelector("#sinopsis");
+      const version = document.querySelector("#versionmat");
+      const cantpaginas = document.querySelector("#cantpaginas");
+      const publicacion = document.querySelector("#apublicacion");
+      const autor = document.querySelector("#autor");
+      const docpdf = document.querySelector("#materialpdf");
+
+      const btguardar = document.querySelector("#guardar");
+
+
+      function listarCategorias(){
+        const parametros = new URLSearchParams();
+        parametros.append("operacion", "listarCategorias");
+
+        fetch("../controllers/categoria.controller.php",{
+          method : "POST",
+          body : parametros
+        })
+          .then(response => response.json())
+          .then(datos => {
+            selCategoria.innerHTML ="<option value=''>Seleccione</option>";
+            datos.forEach(element => {
+              let opcion = `
+                  <option value='${element.idcategoria}'>${element.categoria}</option>
+              `;
+              selCategoria.innerHTML += opcion;
+            });
+        })
+      }
+
+      function listarSubcategorias(){
+        const parametros = new URLSearchParams();
+        parametros.append("operacion", "listarSubcategorias");
+
+        fetch("../controllers/subcategoria.controller.php",{
+          method : "POST",
+          body : parametros
+        })
+          .then(response => response.json())
+          .then(datos => {
+            selSubcategoria.innerHTML ="<option value=''>Seleccione</option>";
+            datos.forEach(element => {
+              let opcion = `
+                  <option value='${element.idsubcategoria}'>${element.subcategoria}</option>
+              `;
+              selSubcategoria.innerHTML += opcion;
+            });
+        })
+      }
+
+      function listarEditoriales(){
+        const parametros = new URLSearchParams();
+        parametros.append("operacion", "listarEditoriales");
+
+        fetch("../controllers/editorial.controller.php",{
+          method : "POST",
+          body : parametros
+        })
+          .then(response => response.json())
+          .then(datos => {
+            selEditorial.innerHTML ="<option value=''>Seleccione</option>";
+            datos.forEach(element => {
+              let opcion = `
+                  <option value='${element.ideditorial}'>${element.editorial}</option>
+              `;
+              selEditorial.innerHTML += opcion;
+            });
+        })
+      }
+
+      function registrarMaterial(){
+          if(confirm('¿Esta seguro de guardar?')){
+            const parametros = new URLSearchParams();
+            parametros.append("operacion", "registrarMaterial");
+
+            parametros.append("idsubcategoria", selSubcategoria.value);
+            parametros.append("ideditorial", selEditorial.value);
+            parametros.append("titulo", titulo.value);
+            parametros.append("sinopsis",sinopsis.value);
+            parametros.append("versionmat",version.value);
+            parametros.append("autor", autor.value);
+            parametros.append("cantpaginas", cantpaginas.value);
+            parametros.append("apublicacion", publicacion.value);
+            parametros.append("caratula", inputfile.value);
+            parametros.append("materialpdf", docpdf.value);
+
+            fetch("../controllers/material.controller.php",{
+              method: 'POST',
+              body: parametros
+            })
+              .then(response => response.json())
+              .then(datos => {
+                if(datos.status){
+                  document.querySelector("#form-registro").reset();
+
+                }else{
+                  alert(datos.mensaje);
+                }
+              })
+          }
+        }
+      
+      
+
+      //Visor de imagenes
+      inputfile.addEventListener("change", () =>{
+        if (inputfile.files.length > 0){
+          const patchImg = URL.createObjectURL(inputfile.files[0]);
+          visor.src = patchImg;
+        }
+      })
+      
+      //Contador
+       sinopsis.addEventListener("input", (event) => {
+        document.querySelector("#contador").textContent = sinopsis.value.length
+      });
+
+      listarCategorias();
+      listarSubcategorias();
+      listarEditoriales();  
+
+      //Funcion guardar 
+      btguardar.addEventListener("click", registrarMaterial);
+    });
+  </script>
+</body>
+</html>
